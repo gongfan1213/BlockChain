@@ -7,6 +7,7 @@ from typing import List
 
 class MerkleTree:
     def __init__(self, transactions: List[str]):
+        """Initialize Merkle tree with given transactions"""
         if len(transactions) % 2 != 0:
             transactions.append(transactions[-1])
         
@@ -15,10 +16,12 @@ class MerkleTree:
 
     @staticmethod
     def hash_pair(left: str, right: str) -> str:
+        """Hash two nodes together using SHA-256"""
         combined = left + right
         return sha256(combined.encode()).hexdigest()
 
     def build_tree(self, nodes: List[str]) -> List[List[str]]:
+        """Build the Merkle tree from leaf nodes"""
         tree = [nodes]
         while len(nodes) > 1:
             new_level = []
@@ -32,9 +35,11 @@ class MerkleTree:
 
     @property
     def root_hash(self) -> str:
+        """Get the root hash of the Merkle tree"""
         return self.tree[-1][0]
 
     def get_proof(self, index: int) -> List[str]:
+        """Get the Merkle proof for a transaction at given index"""
         proof = []
         current_level = 0
         current_index = index
@@ -49,6 +54,7 @@ class MerkleTree:
         return proof
 
     def verify_proof(self, transaction_hash: str, proof: List[str]) -> bool:
+        """Verify a transaction using its Merkle proof"""
         current_hash = transaction_hash
         for sibling_hash in proof:
             current_hash = sha256((current_hash + sibling_hash).encode()).hexdigest()
