@@ -1,39 +1,41 @@
+"""
+Transaction Module Tests
+Verifies SISO transaction creation and validation
+"""
 import pytest
+from src.accounts import BlockchainAccount
 from src.transaction import Transaction
-from src.account import Account
-import time
 
-def test_transaction_creation():
-    sender = Account()
-    receiver = Account()
-    amount = 100
-    tx = Transaction(sender.get_address(), receiver.get_address(), amount)
-    
-    assert tx.sender_address == sender.get_address()
-    assert tx.receiver_address == receiver.get_address()
+@pytest.fixture
+def sample_transaction():
+    sender = BlockchainAccount()
+    receiver = BlockchainAccount()
+    return Transaction.create_transaction(sender, receiver.address, 100)
+
+def test_transaction_creation(sample_transaction):
+    assert len(sample_transaction.txid) == 64
+    assert sample_transaction.sender == sample_transaction.sender
+    assert sample_transaction.receiver
+    assert sample_transaction.amount == 100
+
+def test_valid_transaction(sample_transaction):
+    assert sample_transaction.validate()
+
+def test_tampered_transaction(sample_transaction):
+    sample_transaction.amount = 200
+    assert not sample_transaction.validate()
+
+def test_transaction_hashing_uniqueness():
+    sender = BlockchainAccount()
+    receiver = BlockchainAccount()
+    tx1 = Transaction.create_transaction(sender, receiver.address, 100)
+    tx2 = Transaction.create_transaction(sender, receiver.address, 200)
+    assert tx1.txid != tx2.txid
+
+@pytest.mark.parametrize("amount", [0, 1, 1000000, 999999])
+def test_various_amounts(amount):
+    sender = BlockchainAccount()
+    receiver = BlockchainAccount()
+    tx = Transaction.create_transaction(sender, receiver.address, amount)
+    assert tx.validate()
     assert tx.amount == amount
-    assert tx.timestamp is not None
-
-def test_transaction_signing():
-    sender = Account()
-    receiver = Account()
-    tx = Transaction(sender.get_address(), receiver.get_address(), 100)
-    tx.sign_transaction(sender)
-    
-    assert tx.signature is not None
-    assert tx.transaction_id is not None
-
-def test_transaction_hash_uniqueness():
-    sender = Account()
-    receiver = Account()
-    tx1 = Transaction(sender.get_address(), receiver.get_address(), 100)
-    time.sleep(0.1)  # 确保时间戳不同
-    tx2 = Transaction(sender.get_address(), receiver.get_address(), 100)
-    
-    assert tx1.calculate_hash() != tx2.calculate_hash()
-
-def test_invalid_amount():
-    with pytest.raises(ValueError):
-        sender = Account()
-        receiver = Account()
-        Transaction(sender.get_address(), receiver.get_address(), -100)

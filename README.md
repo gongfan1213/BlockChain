@@ -1,37 +1,45 @@
-# BlockChain Mini System
+# Mini Blockchain Implementation
 
-## 项目概述
-这是一个基于Python实现的迷你区块链系统，实现了以下核心功能：
-- 交易生成与验证
-- 可验证的默克尔树
-- 区块链构建
-- 工作量证明挖矿
-- 完整性验证
+## 1. Introduction
+This project implements a mini blockchain system in Python. It includes core components such as account management, transaction processing, and Merkle tree construction.
 
-## 环境要求
-- Python 3.8+
-- cryptography
-- pytest
-- python-dateutil
+## 2. Implemented Features
+### 2.1 Account Management
+- ECC key generation
+- Transaction signing and verification
 
-## 快速开始
+### 2.2 Transaction Processing
+- Transaction creation
+- Signature verification
 
-1. 安装依赖：
-```bash
+### 2.3 Testing
+- Unit tests for account management
+- Unit tests for transaction processing
+
+## 3. Code Structure
+```
+src/
+  accounts.py        # Account management
+  transaction.py     # Transaction processing
+  merkle_tree.py      # Merkle tree implementation
+tests/
+  test_accounts.py    # Unit tests for accounts
+  test_transaction.py # Unit tests for transactions
+```
+
+## 4. Running the Code
+1. Install dependencies:
+```
 pip install -r requirements.txt
+```
+2. Run tests:
+```
+pytest tests/
+pip install ecdsa
+python -m pytest
+```
 
-# 测试配置文件pytest.ini
-# 初始化区块链
-python main.py init --difficulty 4
-
-# 创建账户
-python main.py create-account
-
-# 创建交易
-python main.py create-transaction <sender_address> <receiver_address> 100
-
-# 挖矿
-python main.py mine <miner_address>
-
-# 验证区块链
-python main.py verify
+## 5. Future Work
+- Implement Merkle tree
+- Add blockchain construction
+- Implement integrity verification

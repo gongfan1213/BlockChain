@@ -1,6 +1,7 @@
 # BlockChain
 小组作业
-
+# pip install ecdsa
+# python -m pytest
 
 # COMP4137/COMP7200 Programming Project: Implementation of a Mini Blockchain
 COMP4137/COMP7200

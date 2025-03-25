@@ -1,42 +1,40 @@
-from cryptography.hazmat.primitives import hashes
-from cryptography.hazmat.primitives.asymmetric import rsa, padding
-import hashlib
-import json
-from datetime import datetime
-#- cryptography : 用于密码学操作
-#- hashlib : 用于SHA-256哈希计算
-#- pytest : 用于单元测试
-#- datetime : 用于时间戳
-# 交易生成模块
+"""
+Transaction Module
+Implements single-input single-output (SISO) transactions with cryptographic validation
+"""
+from hashlib import sha256
+from typing import Tuple
+from dataclasses import dataclass
+from .accounts import BlockchainAccount
+
+@dataclass
 class Transaction:
-    def __init__(self, sender, receiver, amount):
-        self.sender = sender
-        self.receiver = receiver
-        self.amount = amount
-        self.timestamp = datetime.now().timestamp()
-        self.signature = None
-        self.transaction_id = None
-        
-    def calculate_hash(self):
-        """计算交易的哈希值"""
-        transaction_dict = {
-            'sender': self.sender,
-            'receiver': self.receiver,
-            'amount': self.amount,
-            'timestamp': self.timestamp
-        }
-        transaction_str = json.dumps(transaction_dict, sort_keys=True)
-        return hashlib.sha256(transaction_str.encode()).hexdigest()
+    sender: str
+    receiver: str
+    amount: int
+    signature: bytes
     
-    def sign_transaction(self, private_key):
-        """使用私钥签名交易"""
-        transaction_hash = self.calculate_hash().encode()
-        self.signature = private_key.sign(
-            transaction_hash,
-            padding.PSS(
-                mgf=padding.MGF1(hashes.SHA256()),
-                salt_length=padding.PSS.MAX_LENGTH
-            ),
-            hashes.SHA256()
+    @property
+    def txid(self) -> str:
+        """Generate transaction ID using SHA-256 hash of transaction contents"""
+        data = f"{self.sender}{self.receiver}{self.amount}".encode()
+        return sha256(data).hexdigest()
+
+    def validate(self) -> bool:
+        """Verify transaction signature using sender's public key"""
+        return BlockchainAccount.verify_signature(
+            self.sender,
+            self.signature,
+            f"{self.amount}".encode()
         )
-        self.transaction_id = self.calculate_hash()
+
+    @classmethod
+    def create_transaction(cls, sender: BlockchainAccount, receiver_address: str, amount: int):
+        """Factory method to create properly signed transactions"""
+        signature = sender.sign_transaction(f"{amount}".encode())
+        return cls(
+            sender=sender.address,
+            receiver=receiver_address,
+            amount=amount,
+            signature=signature
+        )
