@@ -8,9 +8,11 @@ from typing import List
 class MerkleTree:
     def __init__(self, transactions: List[str]):
         """Initialize Merkle tree with given transactions"""
+        if not transactions:
+            transactions = [""]  # Add an empty string as a leaf node to avoid empty list situations
         if len(transactions) % 2 != 0:
             transactions.append(transactions[-1])
-        
+
         self.transactions = transactions
         self.tree = self.build_tree(transactions)
 
@@ -36,7 +38,10 @@ class MerkleTree:
     @property
     def root_hash(self) -> str:
         """Get the root hash of the Merkle tree"""
-        return self.tree[-1][0]
+        if self.tree:  # Add a check to see if self.tree is empty
+            return self.tree[-1][0]
+        else:
+            return ""  # If empty, return an empty string
 
     def get_proof(self, index: int) -> List[str]:
         """Get the Merkle proof for a transaction at given index"""
