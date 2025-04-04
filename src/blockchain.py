@@ -143,4 +143,9 @@ class Blockchain:
             if MerkleTree(tx_ids).root_hash != current_block.merkle_root:
                 return False
 
+            # Re-calculate and verify block hash
+            recalculated_hash = current_block.calculate_hash()
+            if recalculated_hash != current_block.hash:
+                return False
+
         return True
