@@ -39,7 +39,3 @@ pip install ecdsa
 python -m pytest
 ```
 
-## 5. Future Work
-- Implement Merkle tree
-- Add blockchain construction
-- Implement integrity verification
